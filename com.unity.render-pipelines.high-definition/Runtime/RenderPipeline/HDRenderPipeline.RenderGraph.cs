@@ -79,11 +79,13 @@ namespace UnityEngine.Rendering.HighDefinition
                 TextureHandle vtFeedbackBuffer = TextureHandle.nullHandle;
 #endif
 
+                TextureHandle adaptiveVTFeedbackBuffer = GPUTerrainManager.activateGPUTerrain ? AdaptiveVTBufferManager.CreateAdaptiveFeedbackBuffer(m_RenderGraph) : TextureHandle.nullHandle;
+
                 LightingBuffers lightingBuffers = new LightingBuffers();
                 lightingBuffers.diffuseLightingBuffer = CreateDiffuseLightingBuffer(m_RenderGraph, hdCamera.msaaSamples);
                 lightingBuffers.sssBuffer = CreateSSSBuffer(m_RenderGraph, hdCamera, hdCamera.msaaSamples);
 
-                var prepassOutput = RenderPrepass(m_RenderGraph, colorBuffer, lightingBuffers.sssBuffer, vtFeedbackBuffer, cullingResults, customPassCullingResults, hdCamera, aovRequest, aovBuffers);
+                var prepassOutput = RenderPrepass(m_RenderGraph, colorBuffer, lightingBuffers.sssBuffer, vtFeedbackBuffer, adaptiveVTFeedbackBuffer, cullingResults, customPassCullingResults, hdCamera, aovRequest, aovBuffers);
 
                 // Need this during debug render at the end outside of the main loop scope.
                 // Once render graph move is implemented, we can probably remove the branch and this.

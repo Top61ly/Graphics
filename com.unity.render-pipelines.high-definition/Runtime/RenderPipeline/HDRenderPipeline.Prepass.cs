@@ -174,10 +174,11 @@ namespace UnityEngine.Rendering.HighDefinition
             TextureHandle colorBuffer,
             TextureHandle sssBuffer,
             TextureHandle vtFeedbackBuffer,
+            TextureHandle adaptiveVTFeedbackBuffer,
             CullingResults cullingResults,
             CullingResults customPassCullingResults,
             HDCamera hdCamera,
-            AOVRequestData aovRequest,
+            AOVRequestData aovRequest, 
             List<RTHandle> aovBuffers)
         {
             m_IsDepthBufferCopyValid = false;
@@ -236,7 +237,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
                 RenderDBuffer(renderGraph, hdCamera, decalBuffer, ref result, cullingResults);
 
-                RenderGBuffer(renderGraph, sssBuffer, vtFeedbackBuffer, ref result, cullingResults, hdCamera);
+                RenderGBuffer(renderGraph, sssBuffer, vtFeedbackBuffer, adaptiveVTFeedbackBuffer, ref result, cullingResults, hdCamera);
 
                 DecalNormalPatch(renderGraph, hdCamera, ref result);
 
@@ -570,7 +571,7 @@ namespace UnityEngine.Rendering.HighDefinition
             public int shadowMaskTextureIndex;
         }
 
-        void SetupGBufferTargets(RenderGraph renderGraph, HDCamera hdCamera, TextureHandle sssBuffer, TextureHandle vtFeedbackBuffer, ref PrepassOutput prepassOutput, FrameSettings frameSettings, RenderGraphBuilder builder)
+        void SetupGBufferTargets(RenderGraph renderGraph, HDCamera hdCamera, TextureHandle sssBuffer, TextureHandle vtFeedbackBuffer, TextureHandle adaptiveVTFeedbackBuffer, ref PrepassOutput prepassOutput, FrameSettings frameSettings, RenderGraphBuilder builder)
         {
             bool clearGBuffer = NeedClearGBuffer(hdCamera);
             bool lightLayers = frameSettings.IsEnabled(FrameSettingsField.LightLayers);
@@ -632,6 +633,11 @@ namespace UnityEngine.Rendering.HighDefinition
                 prepassOutput.gbuffer.shadowMaskTextureIndex = currentIndex++;
             }
 
+            if(GPUTerrainManager.activateGPUTerrain)
+            {
+                prepassOutput.gbuffer.mrt[currentIndex] = builder.UseColorBuffer(adaptiveVTFeedbackBuffer, currentIndex++);
+            }
+
             prepassOutput.gbuffer.gBufferCount = currentIndex;
         }
 
@@ -654,7 +660,7 @@ namespace UnityEngine.Rendering.HighDefinition
 
         // RenderGBuffer do the gbuffer pass. This is only called with deferred. If we use a depth prepass, then the depth prepass will perform the alpha testing for opaque alpha tested and we don't need to do it anymore
         // during Gbuffer pass. This is handled in the shader and the depth test (equal and no depth write) is done here.
-        void RenderGBuffer(RenderGraph renderGraph, TextureHandle sssBuffer, TextureHandle vtFeedbackBuffer, ref PrepassOutput prepassOutput, CullingResults cull, HDCamera hdCamera)
+        void RenderGBuffer(RenderGraph renderGraph, TextureHandle sssBuffer, TextureHandle vtFeedbackBuffer, TextureHandle adaptiveVTFeedbackBuffer, ref PrepassOutput prepassOutput, CullingResults cull, HDCamera hdCamera)
         {
             if (hdCamera.frameSettings.litShaderMode != LitShaderMode.Deferred ||
                 !hdCamera.frameSettings.IsEnabled(FrameSettingsField.OpaqueObjects))
@@ -670,7 +676,7 @@ namespace UnityEngine.Rendering.HighDefinition
                 FrameSettings frameSettings = hdCamera.frameSettings;
 
                 passData.frameSettings = frameSettings;
-                SetupGBufferTargets(renderGraph, hdCamera, sssBuffer, vtFeedbackBuffer, ref prepassOutput, frameSettings, builder);
+                SetupGBufferTargets(renderGraph, hdCamera, sssBuffer, vtFeedbackBuffer, adaptiveVTFeedbackBuffer, ref prepassOutput, frameSettings, builder);
                 passData.rendererList = builder.UseRendererList(
                     renderGraph.CreateRendererList(CreateOpaqueRendererListDesc(cull, hdCamera.camera, HDShaderPassNames.s_GBufferName, m_CurrentRendererConfigurationBakedLighting)));
 
@@ -679,8 +685,8 @@ namespace UnityEngine.Rendering.HighDefinition
                 builder.SetRenderFunc(
                     (GBufferPassData data, RenderGraphContext context) =>
                     {
-                        BindDBufferGlobalData(data.dBuffer, context);
-                        DrawOpaqueRendererList(context, data.frameSettings, data.rendererList);
+                        BindDBufferGlobalData(data.dBuffer, context);                       
+                        DrawOpaqueRendererList(context, data.frameSettings, data.rendererList);                     
                     });
             }
         }
