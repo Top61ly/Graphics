@@ -1315,6 +1315,13 @@ namespace UnityEngine.Rendering.HighDefinition
 
 #endif
 
+#if ENABLE_GPU_TERRAIN
+        void PushFullScreenAdaptiveVTFeedbackDebugTexture(RenderGraph renderGraph, TextureHandle input)
+        {
+
+        }
+#endif
+
         TextureHandle PushColorPickerDebugTexture(RenderGraph renderGraph, TextureHandle input)
         {
             using (var builder = renderGraph.AddRenderPass<PushFullScreenDebugPassData>("Push To Color Picker", out var passData))

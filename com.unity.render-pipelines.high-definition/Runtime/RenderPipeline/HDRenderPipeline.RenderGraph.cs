@@ -254,6 +254,10 @@ namespace UnityEngine.Rendering.HighDefinition
                     hdCamera.ResolveVirtualTextureFeedback(m_RenderGraph, vtFeedbackBuffer);
                     PushFullScreenVTFeedbackDebugTexture(m_RenderGraph, vtFeedbackBuffer, msaa);
 #endif
+#if ENABLE_GPU_TERRAIN
+                    hdCamera.ResolveAdaptiveVirtualTextureFeedback(m_RenderGraph, adaptiveVTFeedbackBuffer);
+                    PushFullScreenAdaptiveVTFeedbackDebugTexture(m_RenderGraph, adaptiveVTFeedbackBuffer);
+#endif
                 }
 
                 // At this point, the color buffer has been filled by either debug views are regular rendering so we can push it here.

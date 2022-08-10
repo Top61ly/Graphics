@@ -23,6 +23,7 @@
 #define DEBUGVIEW_BUILTIN_BUILTINDATA_RENDERING_LAYERS (113)
 #define DEBUGVIEW_BUILTIN_BUILTINDATA_DEPTH_OFFSET (114)
 #define DEBUGVIEW_BUILTIN_BUILTINDATA_VT_PACKED_FEEDBACK (115)
+#define DEBUGVIEW_BUILTIN_BUILTINDATA_ADAPTIVE_VT_PACKED_FEEDBACK (116)
 
 // Generated from UnityEngine.Rendering.HighDefinition.Builtin+BuiltinData
 // PackingRules = Exact
@@ -45,6 +46,9 @@ struct BuiltinData
     float depthOffset;
     #if defined(UNITY_VIRTUAL_TEXTURING)
     real4 vtPackedFeedback;
+    #endif
+    #if defined(UNITY_ADAPTIVE_VIRTUAL_TEXTURING)
+    real4 avtPackedFeedback;
     #endif
 };
 
@@ -116,6 +120,15 @@ void GetGeneratedBuiltinDataDebug(uint paramId, BuiltinData builtindata, inout f
             break;
 #else
         case DEBUGVIEW_BUILTIN_BUILTINDATA_VT_PACKED_FEEDBACK:
+            result = 0;
+            break;
+#endif
+#if defined(UNITY_ADAPTIVE_VIRTUAL_TEXTURING)
+        case DEBUGVIEW_BUILTIN_BUILTINDATA_ADAPTIVE_VT_PACKED_FEEDBACK:
+            result = builtindata.avtPackedFeedback.xyz;
+            break;
+#else
+        case DEBUGVIEW_BUILTIN_BUILTINDATA_ADAPTIVE_VT_PACKED_FEEDBACK:
             result = 0;
             break;
 #endif

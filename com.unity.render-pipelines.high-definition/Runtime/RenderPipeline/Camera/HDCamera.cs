@@ -684,7 +684,9 @@ namespace UnityEngine.Rendering.HighDefinition
 #if ENABLE_VIRTUALTEXTURES
         VTBufferManager virtualTextureFeedback = new VTBufferManager();
 #endif
-
+#if ENABLE_GPU_TERRAIN
+        AdaptiveVTBufferManager adaptiveVTFeedback = new AdaptiveVTBufferManager();
+#endif
 
         internal HDCamera(Camera cam)
         {
@@ -1868,6 +1870,9 @@ namespace UnityEngine.Rendering.HighDefinition
 #if ENABLE_VIRTUALTEXTURES
             virtualTextureFeedback?.Cleanup();
 #endif
+#if ENABLE_GPU_TERRAIN
+            adaptiveVTFeedback?.Cleanup();
+#endif
         }
 
         // BufferedRTHandleSystem API expects an allocator function. We define it here.
@@ -1930,6 +1935,13 @@ namespace UnityEngine.Rendering.HighDefinition
             virtualTextureFeedback.Resolve(renderGraph, this, vtFeedbackBuffer);
         }
 
+#endif
+
+#if ENABLE_GPU_TERRAIN
+        internal void ResolveAdaptiveVirtualTextureFeedback(RenderGraph renderGraph, TextureHandle adaptiveVTFeedbackBuffer)
+        {
+            adaptiveVTFeedback.Resolve(renderGraph, this, adaptiveVTFeedbackBuffer);
+        }
 #endif
         #endregion
     }

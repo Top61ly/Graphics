@@ -620,22 +620,23 @@ namespace UnityEngine.Rendering.HighDefinition
 
             prepassOutput.gbuffer.lightLayersTextureIndex = -1;
             prepassOutput.gbuffer.shadowMaskTextureIndex = -1;
+
+#if ENABLE_GPU_TERRAIN
+            prepassOutput.gbuffer.mrt[currentIndex] = builder.UseColorBuffer(adaptiveVTFeedbackBuffer, currentIndex++);
+#endif
+
             if (lightLayers)
             {
                 prepassOutput.gbuffer.mrt[currentIndex] = builder.UseColorBuffer(renderGraph.CreateTexture(
                     new TextureDesc(Vector2.one, true, true) { colorFormat = GraphicsFormat.R8G8B8A8_UNorm, clearBuffer = clearGBuffer, clearColor = Color.clear, name = "LightLayers" }), currentIndex);
                 prepassOutput.gbuffer.lightLayersTextureIndex = currentIndex++;
             }
+
             if (shadowMasks)
             {
                 prepassOutput.gbuffer.mrt[currentIndex] = builder.UseColorBuffer(renderGraph.CreateTexture(
                     new TextureDesc(Vector2.one, true, true) { colorFormat = Builtin.GetShadowMaskBufferFormat(), clearBuffer = clearGBuffer, clearColor = Color.clear, name = "ShadowMasks" }), currentIndex);
                 prepassOutput.gbuffer.shadowMaskTextureIndex = currentIndex++;
-            }
-
-            if(GPUTerrainManager.activateGPUTerrain)
-            {
-                prepassOutput.gbuffer.mrt[currentIndex] = builder.UseColorBuffer(adaptiveVTFeedbackBuffer, currentIndex++);
             }
 
             prepassOutput.gbuffer.gBufferCount = currentIndex;

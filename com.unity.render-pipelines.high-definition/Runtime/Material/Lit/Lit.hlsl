@@ -54,13 +54,22 @@ TEXTURE2D_X(_ShadowMaskTexture); // Alias for shadow mask, so we don't need to k
 // Definition
 //-----------------------------------------------------------------------------
 
-#ifdef UNITY_VIRTUAL_TEXTURING
-#define OUT_GBUFFER_VTFEEDBACK outGBuffer4
-#define OUT_GBUFFER_OPTIONAL_SLOT_1 outGBuffer5
-#define OUT_GBUFFER_OPTIONAL_SLOT_2 outGBuffer6
+#if defined(UNITY_VIRTUAL_TEXTURING) && defined(UNITY_ADAPTIVE_VIRTUAL_TEXTURING)
+    #define OUT_GBUFFER_VTFEEDBACK outGBuffer4
+    #define OUT_GBUFFER_AVTFEEDBACK outGBuffer5
+    #define OUT_GBUFFER_OPTIONAL_SLOT_1 outGBuffer6
+    #define OUT_GBUFFER_OPTIONAL_SLOT_2 outGBuffer7
+#elif defined(UNITY_VIRTUAL_TEXTURING)
+    #define OUT_GBUFFER_VTFEEDBACK outGBuffer4
+    #define OUT_GBUFFER_OPTIONAL_SLOT_1 outGBuffer5
+    #define OUT_GBUFFER_OPTIONAL_SLOT_2 outGBuffer6
+#elif defined(UNITY_ADAPTIVE_VIRTUAL_TEXTURING)    
+    #define OUT_GBUFFER_AVTFEEDBACK outGBuffer4
+    #define OUT_GBUFFER_OPTIONAL_SLOT_1 outGBuffer5
+    #define OUT_GBUFFER_OPTIONAL_SLOT_2 outGBuffer6
 #else
-#define OUT_GBUFFER_OPTIONAL_SLOT_1 outGBuffer4
-#define OUT_GBUFFER_OPTIONAL_SLOT_2 outGBuffer5
+    #define OUT_GBUFFER_OPTIONAL_SLOT_1 outGBuffer4
+    #define OUT_GBUFFER_OPTIONAL_SLOT_2 outGBuffer5
 #endif
 
 #if defined(LIGHT_LAYERS) && defined(SHADOWS_SHADOWMASK)
@@ -529,6 +538,9 @@ void EncodeIntoGBuffer( SurfaceData surfaceData
 #if GBUFFERMATERIAL_COUNT > 6
                         , out GBufferType5 outGBuffer6
 #endif
+#if GBUFFERMATERIAL_COUNT > 7
+                        , out GBufferType5 outGBuffer7
+#endif
                         )
 {
     // When using APV we need to know if we have lightmaps or not.
@@ -715,6 +727,10 @@ void EncodeIntoGBuffer( SurfaceData surfaceData
 
 #ifdef UNITY_VIRTUAL_TEXTURING
     OUT_GBUFFER_VTFEEDBACK = builtinData.vtPackedFeedback;
+#endif
+
+#ifdef UNITY_ADAPTIVE_VIRTUAL_TEXTURING
+    OUT_GBUFFER_AVTFEEDBACK = builtinData.avtPackedFeedback;
 #endif
 }
 
