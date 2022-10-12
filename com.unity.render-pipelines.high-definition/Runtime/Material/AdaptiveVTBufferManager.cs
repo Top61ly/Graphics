@@ -115,7 +115,7 @@ namespace UnityEngine.Rendering.HighDefinition
                             var TGSize = 8; //Match shader
                             ctx.cmd.DispatchCompute(data.downsampleCS, data.downsampleKernel, ((int)data.lowresWidth + (TGSize - 1)) / TGSize, ((int)data.lowresHeight + (TGSize - 1)) / TGSize, 1);
 
-                            ctx.cmd.ProcessAdaptiveVTFeedback(lowresBuffer, 0, data.lowresWidth, 0, data.lowresHeight, 0, 0);
+                            ctx.cmd.ProcessAdaptiveVTFeedback(lowresBuffer, 0, 0, data.lowresWidth, 0, data.lowresHeight, 0);
 
                         });
                 }

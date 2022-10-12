@@ -636,7 +636,8 @@ namespace UnityEngine.Rendering.HighDefinition
             }
 
 #if ENABLE_GPU_TERRAIN
-            prepassOutput.gbuffer.mrt[currentIndex] = builder.UseColorBuffer(adaptiveVTFeedbackBuffer, currentIndex++);
+            if(hdCamera.camera.cameraType == CameraType.Game)
+                prepassOutput.gbuffer.mrt[currentIndex] = builder.UseColorBuffer(adaptiveVTFeedbackBuffer, currentIndex++);
 #endif
 
             prepassOutput.gbuffer.gBufferCount = currentIndex;

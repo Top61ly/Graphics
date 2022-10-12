@@ -79,8 +79,12 @@ namespace UnityEngine.Rendering.HighDefinition
                 TextureHandle vtFeedbackBuffer = TextureHandle.nullHandle;
 #endif
 
-                TextureHandle adaptiveVTFeedbackBuffer = GPUTerrainManager.activateGPUTerrain ? AdaptiveVTBufferManager.CreateAdaptiveFeedbackBuffer(m_RenderGraph) : TextureHandle.nullHandle;
-
+#if ENABLE_GPU_TERRAIN
+                var feedbackAvt = camera.cameraType == CameraType.Game;
+                TextureHandle adaptiveVTFeedbackBuffer = feedbackAvt ? AdaptiveVTBufferManager.CreateAdaptiveFeedbackBuffer(m_RenderGraph) : TextureHandle.nullHandle;
+#else
+                TextureHandle adaptiveVTFeedbackBuffer = TextureHandle.nullHandle;
+#endif
                 LightingBuffers lightingBuffers = new LightingBuffers();
                 lightingBuffers.diffuseLightingBuffer = CreateDiffuseLightingBuffer(m_RenderGraph, hdCamera.msaaSamples);
                 lightingBuffers.sssBuffer = CreateSSSBuffer(m_RenderGraph, hdCamera, hdCamera.msaaSamples);
@@ -255,8 +259,11 @@ namespace UnityEngine.Rendering.HighDefinition
                     PushFullScreenVTFeedbackDebugTexture(m_RenderGraph, vtFeedbackBuffer, msaa);
 #endif
 #if ENABLE_GPU_TERRAIN
-                    hdCamera.ResolveAdaptiveVirtualTextureFeedback(m_RenderGraph, adaptiveVTFeedbackBuffer);
-                    PushFullScreenAdaptiveVTFeedbackDebugTexture(m_RenderGraph, adaptiveVTFeedbackBuffer);
+                    if (feedbackAvt)
+                    {
+                        hdCamera.ResolveAdaptiveVirtualTextureFeedback(m_RenderGraph, adaptiveVTFeedbackBuffer);
+                        PushFullScreenAdaptiveVTFeedbackDebugTexture(m_RenderGraph, adaptiveVTFeedbackBuffer);
+                    }
 #endif
                 }
 
@@ -1629,7 +1636,8 @@ namespace UnityEngine.Rendering.HighDefinition
                     clearColor = GetColorBufferClearColor(hdCamera),
                     name = msaa ? "CameraColorMSAA" : "CameraColor"
 #if UNITY_2020_2_OR_NEWER
-                    , fastMemoryDesc = colorFastMemDesc
+                    ,
+                    fastMemoryDesc = colorFastMemDesc
 #endif
                 });
         }
@@ -1731,9 +1739,9 @@ namespace UnityEngine.Rendering.HighDefinition
 #if UNITY_EDITOR
         class RenderGizmosPassData
         {
-            public GizmoSubset  gizmoSubset;
-            public Camera       camera;
-            public Texture      exposureTexture;
+            public GizmoSubset gizmoSubset;
+            public Camera camera;
+            public Texture exposureTexture;
         }
 #endif
 
