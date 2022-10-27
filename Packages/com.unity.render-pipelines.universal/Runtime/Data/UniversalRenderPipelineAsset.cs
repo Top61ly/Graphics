@@ -67,6 +67,7 @@ namespace UnityEngine.Rendering.Universal
         Standard,
         Particle,
         Terrain,
+        GpuTerrain,
         Sprite,
         UnityBuiltinDefault,
         SpriteMask,
@@ -228,7 +229,7 @@ namespace UnityEngine.Rendering.Universal
         [SerializeField] bool m_SupportsDynamicBatching = false;
         [SerializeField] bool m_MixedLightingSupported = true;
         [SerializeField] bool m_SupportsLightLayers = false;
-        [SerializeField] [Obsolete] PipelineDebugLevel m_DebugLevel;
+        [SerializeField][Obsolete] PipelineDebugLevel m_DebugLevel;
 
         // Adaptive performance settings
         [SerializeField] bool m_UseAdaptivePerformance = true;
@@ -472,6 +473,9 @@ namespace UnityEngine.Rendering.Universal
                 case DefaultMaterialType.Terrain:
                     return editorResources.materials.terrainLit;
 
+                case DefaultMaterialType.GpuTerrain:
+                    return editorResources.materials.gpuTerrainLit;
+
                 case DefaultMaterialType.Decal:
                     return editorResources.materials.decal;
 
@@ -606,7 +610,7 @@ namespace UnityEngine.Rendering.Universal
                 if (result == GraphicsFormat.None)
                 {
                     result = GraphicsFormat.R8G8B8A8_UNorm;
-                    Debug.LogWarning($"Additional Lights Cookie Format ({ m_AdditionalLightsCookieFormat.ToString() }) is not supported by the platform. Falling back to {GraphicsFormatUtility.GetBlockSize(result) * 8}-bit format ({GraphicsFormatUtility.GetFormatString(result)})");
+                    Debug.LogWarning($"Additional Lights Cookie Format ({m_AdditionalLightsCookieFormat.ToString()}) is not supported by the platform. Falling back to {GraphicsFormatUtility.GetBlockSize(result) * 8}-bit format ({GraphicsFormatUtility.GetFormatString(result)})");
                 }
 
                 return result;
@@ -1006,6 +1010,11 @@ namespace UnityEngine.Rendering.Universal
         public override Material defaultTerrainMaterial
         {
             get { return GetMaterial(DefaultMaterialType.Terrain); }
+        }
+
+        public override Material defaultGPUTerrainMaterial
+        {
+            get { return GetMaterial(DefaultMaterialType.GpuTerrain); }
         }
 
         public override Material defaultUIMaterial
